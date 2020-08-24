@@ -5,11 +5,43 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <sstream>
+#include <vector>
 
 using namespace std;
 
-int callback(void *NotUsed, int argc, char **argv, char **azColName) {}
-char *errMsg;
+struct Student
+{
+    int id;
+    string name;
+    double GPA;
+    int age;
+};
+vector<Student> vec;
+
+static char *errMsg = NULL;
+static int callback(void *p, int argc, char **argv, char **azColName)
+{
+    // cerr << "callback" << endl;
+    vector<Student> *vec = (vector<Student>*)p;
+    Student s = {};
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(azColName[i], "ID") == 0) s.id = atoi(argv[i]);
+        else if (strcmp(azColName[i], "Name") == 0) s.name = argv[i];
+        else if (strcmp(azColName[i], "GPA") == 0) s.GPA = atof(argv[i]);
+        else if (strcmp(azColName[i], "Age") == 0) s.age = atoi(argv[i]);
+        // cerr << azColName[i] << " = " << (argv[i] ? argv[i] : "NULL") << " | ";
+    }
+    // cerr << endl;
+    vec->push_back(s);
+    return 0;
+}
+
+string to_string(const string &s)
+{
+    return "'" + s + "'";
+}
+
 
 class SimpleController
 {
@@ -17,41 +49,88 @@ private:
     sqlite3 *db;
 
 public:
-    SimpleController(string path)
+    SimpleController(const string &path)
     {
         int rc = sqlite3_open(path.c_str(), &db);
-        if (rc) {
-            cout << "[ERROR] Error encontered when opening " << path << endl;
-            sqlite3_close(db);
-            exit(rc);
-        }
+        handle_error(rc, NULL, "Error encontered when opening " + path);
         cout << "[INFO] Database " << path << " is opened." << endl;
     }
     ~SimpleController()
     {
         sqlite3_close(db);
     }
-    void create_table()
+    void handle_error(int rc, char *errMsg, const string &prtMsg)
     {
-        string sql = "CREATE TABLE IF NOT EXISTS students (ID INT, Name TEXT, GPA REAL, Age INT)";
-        int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &errMsg);
         if (rc) {
-            cout << "[ERROR] Error encontered when creating table" << endl;
+            cout << "[ERROR] " << prtMsg << endl;
+            cout << "[ERROR] " << "error code: " << rc << endl;
+            if (errMsg != NULL) sqlite3_free(errMsg);
             sqlite3_close(db);
             exit(rc);
         }
     }
-    void insert(int id, string name, double GPA, int age) {}
-    void remove_by_id(int id) {}
-    void select_by_id(int id, string &name, double &GPA, int &age) {}
-    void print_tables() {}
-    void print_columns() {}
+    void remove_table()
+    {
+        string sql = "DROP TABLE IF EXISTS Students;";
+        cout << ">>> " << sql << endl;
+        int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &errMsg);
+        handle_error(rc, errMsg, "Error encontered when creating table");
+    }
+    void create_table()
+    {
+        string sql = "CREATE TABLE IF NOT EXISTS Students (ID INT, Name TEXT, GPA REAL, Age INT);";
+        cout << ">>> " << sql << endl;
+        int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &errMsg);
+        handle_error(rc, errMsg, "Error encontered when creating table");
+    }
+    void insert(int id, const string &name, double GPA, int age)
+    {
+        string sql = "INSERT INTO Students (ID, Name, GPA, Age) VALUES (" 
+            + to_string(id) + ", " + to_string(name) + ", " + to_string(GPA) + ", " + to_string(age) + ");";
+        cout << ">>> " << sql << endl;
+        int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &errMsg);
+        handle_error(rc, errMsg, "Error encontered when inserting");
+    }
+    void remove_by_id(int id)
+    {
+        string sql = "DELETE FROM Students WHERE ID = " + to_string(id) + ";";
+        cout << ">>> " << sql << endl;
+        int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &errMsg);
+        handle_error(rc, errMsg, "Error encontered when inserting");
+    }
+    void select_by_id(int id) {
+        string sql = "SELECT Name, GPA, Age FROM Students WHERE ID = " + to_string(id) + ";";
+        cout << ">>> " << sql << endl;
+        vector<Student> vec;
+        int rc = sqlite3_exec(db, sql.c_str(), callback, &vec, &errMsg);
+        handle_error(rc, errMsg, "Error encontered when inserting");
+        for (int i = 0; i < vec.size(); i++)
+            cerr << "Name = " << vec[i].name << " | GPA = " << vec[i].GPA << " | Age = " << vec[i].age << endl;
+    }
+    void select_all()
+    {
+        string sql = "SELECT ID, Name, GPA, Age FROM Students";
+        cout << ">>> " << sql << endl;
+        vector<Student> vec;
+        int rc = sqlite3_exec(db, sql.c_str(), callback, &vec, &errMsg);
+        handle_error(rc, errMsg, "Error encontered when inserting");
+        for (int i = 0; i < vec.size(); i++)
+            cerr << "ID = " << vec[i].id << " | Name = " << vec[i].name << " | GPA = " << vec[i].GPA 
+                << " | Age = " << vec[i].age << endl;
+    }
 };
 
 void display()
 {
     SimpleController *c = new SimpleController("./database.db");
+    c->remove_table();
     c->create_table();
+    c->insert(100, "Alice", 4.0, 18);
+    c->insert(200, "Bob", 3.9, 20);
+    c->select_all();
+    c->remove_by_id(200);
+    c->remove_by_id(150);
+    c->select_by_id(100);
     delete c;
 }
 
