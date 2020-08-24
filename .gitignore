@@ -7,3 +7,6 @@ student
 
 # vscode
 .vscode/*
+
+# submission
+*.zip
