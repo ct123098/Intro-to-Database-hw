@@ -42,7 +42,6 @@ string to_string(const string &s)
     return "'" + s + "'";
 }
 
-
 class SimpleController
 {
 private:
@@ -75,6 +74,7 @@ public:
         cout << ">>> " << sql << endl;
         int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &errMsg);
         handle_error(rc, errMsg, "Error encontered when creating table");
+        cout << "[INFO] Table Students is removed" << endl;
     }
     void create_table()
     {
@@ -82,6 +82,7 @@ public:
         cout << ">>> " << sql << endl;
         int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &errMsg);
         handle_error(rc, errMsg, "Error encontered when creating table");
+        cout << "[INFO] Table Students is created" << endl;
     }
     void insert(int id, const string &name, double GPA, int age)
     {
@@ -104,8 +105,11 @@ public:
         vector<Student> vec;
         int rc = sqlite3_exec(db, sql.c_str(), callback, &vec, &errMsg);
         handle_error(rc, errMsg, "Error encontered when inserting");
-        for (int i = 0; i < vec.size(); i++)
-            cerr << "Name = " << vec[i].name << " | GPA = " << vec[i].GPA << " | Age = " << vec[i].age << endl;
+        if (vec.size() > 0)
+            for (int i = 0; i < vec.size(); i++)
+                cerr << "Name = " << vec[i].name << " | GPA = " << vec[i].GPA << " | Age = " << vec[i].age << endl;
+        else
+            cerr << "Not Found." << endl;
     }
     void select_all()
     {
@@ -120,23 +124,22 @@ public:
     }
 };
 
-void display()
+int main()
 {
     SimpleController *c = new SimpleController("./database.db");
     c->remove_table();
     c->create_table();
     c->insert(100, "Alice", 4.0, 18);
-    c->insert(200, "Bob", 3.9, 20);
+    c->insert(200, "Bob", 3.9, 19);
+    c->insert(300, "Charles", 3.85, 20);
+    c->insert(400, "Dave", 3.8, 21);
     c->select_all();
     c->remove_by_id(200);
     c->remove_by_id(150);
+    c->select_by_id(200);
     c->select_by_id(100);
+    c->select_all();
     delete c;
-}
-
-int main()
-{
-    display();
 
     return 0;
 }
