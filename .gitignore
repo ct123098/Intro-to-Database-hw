@@ -1,0 +1,9 @@
+# C++ 
+*.o
+student
+
+# SQLite3
+*.db
+
+# vscode
+.vscode/*
