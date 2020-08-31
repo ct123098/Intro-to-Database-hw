@@ -11,4 +11,8 @@ student
 # submission
 *.zip
 
+# python
+*.pyc
+
 */reference/*
+.~*

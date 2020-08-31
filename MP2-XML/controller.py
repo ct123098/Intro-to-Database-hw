@@ -1,14 +1,29 @@
-
+import pyodbc
 
 class DBController():
     def __init__(self):
-        pass
+        self.conn = None
+        self.cursor = None
 
-    def open(self, name):
-        pass
+    def open(self, server, database, uid, pwd):
+        print(pyodbc.drivers())
+        conn_str = """
+            DRIVER={{ODBC Driver 17 for SQL Server}};
+            SERVER={server};
+            DATABASE={database};
+            UID={uid};
+            PWD={pwd};
+        """.format(server=server, database=database, uid=uid, pwd=pwd)
+        # print(conn_str)
+        # return 
+        self.conn = pyodbc.connect(conn_str)
+        # print("ok.")
+        print("[INFO] connection established.")
+        self.cursor = self.conn.cursor()
 
     def close(self):
-        pass
+        self.cursor.close()
+        self.conn.close()
 
     def create_tables(self):
         pass

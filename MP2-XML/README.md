@@ -8,9 +8,7 @@ Write a program, supporting the following functions:
     - A **student** table containing 4 columns: (ID, Name, Age, Dept)
     - A **course** table containing 6 columns: (CourseID, CourseName, Capacity, RemainCapacity, CreditHours, Requirement), the data type of Requirement column is xml, you can specify things like prerequisite course or department limitation
     - A **course registration** table containing two foreign key attributes and a grade attribute: (StudentID, CourseID, Grade)
-
 - Insert tuples into student & course table
-
 - Remove tuples from student & course table
 - Look up the number of students enrolled in a course
 - Check whether a student satisfies the requirement of a course
@@ -22,3 +20,10 @@ Write a program, supporting the following functions:
 - Update the grade of a student in a course
 - Compute the GPA of a student
 - Compute the average grade of students in a course
+
+## Usage
+
+remarks:
+
+- If you use SQL Server on a remote/virtual machine, please open TCP/IP protocol switch, and check your port. 
+- If you run this program on a machine where SQL Server is not installed, please make sure whether you have installed an ODBC driver.
