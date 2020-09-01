@@ -27,3 +27,17 @@ remarks:
 
 - If you use SQL Server on a remote/virtual machine, please open TCP/IP protocol switch, and check your port. 
 - If you run this program on a machine where SQL Server is not installed, please make sure whether you have installed an ODBC driver.
+
+## XML Schema
+
+```xml
+<xs:element name="Req">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="Pre" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Dept" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+```
+
