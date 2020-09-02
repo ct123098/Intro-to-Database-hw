@@ -1,3 +1,7 @@
+---
+typora-root-url: figures
+---
+
 # Machine Problem 2
 
 ## Requirement
@@ -26,7 +30,7 @@ Write a program, supporting the following functions:
 
 - "delete course" can only be called when the course does not have any student.
 
-- Course A having a prerequisite course B means a student can register course A only if the student gets the grade of course B.
+- Course A having a prerequisite course B means a student can register course A only if the student have gotten the grade of course B (We do not care about the student's grade).
 
 - "remove a student from course" takes effect only if the student does not get the grade. The reason of this design is that otherwise the prerequisite requirement may break.
 
@@ -44,12 +48,20 @@ Write a program, supporting the following functions:
 
 ## Usage
 
+```bash
+python run.py
+```
+
 ### Remarks
 
+- To run the code, you need to install `pyodbc` package.
+- If you run this program on a machine where SQL Server is not installed, please make sure that you have installed an **ODBC driver**.
+
 - If you use SQL Server on a remote/virtual machine, please open TCP/IP protocol switch, and check your port. 
-- If you run this program on a machine where SQL Server is not installed, please make sure that you have installed an ODBC driver.
 
 ### XML Schema
+
+The attribute Requirement  in table Course is in XML format. You need to make sure that the xml string you inserted satisfies the following XML schema.
 
 ```xml
 <xs:element name="Req">
@@ -64,3 +76,36 @@ Write a program, supporting the following functions:
 
 ## Result
 
+### Part 1
+
+![image-20200902163910001](/image-20200902163910001.png)
+
+![image-20200902163556657](/image-20200902163556657.png)
+
+### Part 2
+
+![image-20200902163851420](/image-20200902163851420.png)
+
+![image-20200902163639928](/image-20200902163639928.png)
+
+### Part 3
+
+![image-20200902163927717](/image-20200902163927717.png)
+
+![image-20200902163717844](/image-20200902163717844.png)
+
+### Part 4
+
+![image-20200902163942304](/image-20200902163942304.png)
+
+![image-20200902163746916](/image-20200902163746916.png)
+
+### Part 5
+
+![image-20200902164006349](/image-20200902164006349.png)
+
+![image-20200902163823312](/image-20200902163823312.png)
+
+### Output in Terminal
+
+![image-20200902164122545](/image-20200902164122545.png)

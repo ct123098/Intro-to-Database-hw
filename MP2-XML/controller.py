@@ -6,7 +6,7 @@ class DBController():
         self.cursor = None
 
     def open(self, server, database, uid, pwd):
-        print(pyodbc.drivers())
+        # print(pyodbc.drivers())
         conn_str = """
             DRIVER={{ODBC Driver 17 for SQL Server}};
             SERVER={server};
