@@ -21,14 +21,35 @@ Write a program, supporting the following functions:
 - Compute the GPA of a student
 - Compute the average grade of students in a course
 
+## Assumptions
+- "delete student" can only be called when the student does not have any course.
+
+- "delete course" can only be called when the course does not have any student.
+
+- Course A having a prerequisite course B means a student can register course A only if the student gets the grade of course B.
+
+- "remove a student from course" takes effect only if the student does not get the grade. The reason of this design is that otherwise the prerequisite requirement may break.
+
+- Grade Point calculates according to the following rule,
+    $$
+    GP(g) = \left\{\begin{array}{ll}
+    4.0, &90 \leq g \leq 100 \\
+    3.0, &80 \leq g < 90 \\
+    2.0, &70 \leq g < 80 \\
+    1.0, &60 \leq g < 70 \\
+    0.0, &0 \leq g < 60
+    \end{array}\right.
+    $$
+    
+
 ## Usage
 
-remarks:
+### Remarks
 
 - If you use SQL Server on a remote/virtual machine, please open TCP/IP protocol switch, and check your port. 
-- If you run this program on a machine where SQL Server is not installed, please make sure whether you have installed an ODBC driver.
+- If you run this program on a machine where SQL Server is not installed, please make sure that you have installed an ODBC driver.
 
-## XML Schema
+### XML Schema
 
 ```xml
 <xs:element name="Req">
@@ -40,4 +61,6 @@ remarks:
   </xs:complexType>
 </xs:element>
 ```
+
+## Result
 
