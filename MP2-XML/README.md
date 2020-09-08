@@ -1,7 +1,3 @@
----
-typora-root-url: figures
----
-
 # Machine Problem 2
 
 ## Requirement

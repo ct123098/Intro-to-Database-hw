@@ -54,7 +54,8 @@ class DBController():
             CREATE TABLE Registration (
                 StudentID INT FOREIGN KEY REFERENCES Student(ID),
                 CourseID INT FOREIGN KEY REFERENCES Course(CourseID),
-                Grade INT
+                Grade INT,
+                CONSTRAINT pk_Registration PRIMARY KEY (StudentID, CourseID)
             );
         """)
         self.conn.autocommit = False
@@ -160,46 +161,54 @@ class DBController():
         return True
 
     def register_course(self, studentID, courseID):
-        # Step 0: check whether student and course exist
-        flag0 = self.cursor.execute("""
-            SELECT COUNT(*) AS Flag
-            FROM Student, Course
-            WHERE ID = ? AND CourseID = ?
-        """, studentID, courseID).fetchone().Flag
-        if flag0 == 0:
-            return
-        # Step 1: if the student has already register this course, exit
-        # return 0 if not registered, 1 if registered
-        flag1 = self.cursor.execute("""
-            SELECT COUNT(*) AS Flag
-            FROM Registration
-            WHERE StudentID = ? AND CourseID = ?
-        """, studentID, courseID).fetchone().Flag
-        if flag1 == 1:
-            return
-        # Step 2: if the remain capacity = 0, exit
-        # return remain capacity
-        flag2 = self.cursor.execute("""
-            SELECT RemainCapacity AS Flag
-            FROM Course
-            WHERE CourseID = ?
-        """, courseID).fetchone().Flag
-        if flag2 == 0:
-            return
-        # Step 3: if the student does not meet the requirement, exit
-        flag3 = self.check_requirement(studentID, courseID)
-        if flag3 == False:
-            return
+        # # Step 0: check whether student and course exist
+        # flag0 = self.cursor.execute("""
+        #     SELECT COUNT(*) AS Flag
+        #     FROM Student, Course
+        #     WHERE ID = ? AND CourseID = ?
+        # """, studentID, courseID).fetchone().Flag
+        # if flag0 == 0:
+        #     return
+        # # Step 1: if the student has already register this course, exit
+        # # return 0 if not registered, 1 if registered
+        # flag1 = self.cursor.execute("""
+        #     SELECT COUNT(*) AS Flag
+        #     FROM Registration
+        #     WHERE StudentID = ? AND CourseID = ?
+        # """, studentID, courseID).fetchone().Flag
+        # if flag1 == 1:
+        #     return
+        # # Step 2: if the remain capacity = 0, exit
+        # # return remain capacity
+        # flag2 = self.cursor.execute("""
+        #     SELECT RemainCapacity AS Flag
+        #     FROM Course
+        #     WHERE CourseID = ?
+        # """, courseID).fetchone().Flag
+        # if flag2 == 0:
+        #     return
+        # # Step 3: if the student does not meet the requirement, exit
+        # flag3 = self.check_requirement(studentID, courseID)
+        # if flag3 == False:
+        #     return
         # Step 4: update course, add registration
-        self.cursor.execute("""
-            INSERT INTO Registration(StudentID, CourseID, Grade)
-            VALUES (?, ?, NULL)
-        """, studentID, courseID)
-        self.cursor.execute("""
-            UPDATE Course
-            SET RemainCapacity = RemainCapacity - 1
-            WHERE CourseID = ?
-        """, courseID)
+        try:
+            self.cursor.execute("""
+                INSERT INTO Registration(StudentID, CourseID, Grade)
+                VALUES (?, ?, NULL)
+            """, studentID, courseID)
+            self.cursor.execute("""
+                UPDATE Course
+                SET RemainCapacity = RemainCapacity - 1
+                WHERE CourseID = ?
+            """, courseID)
+            flag3 = self.check_requirement(studentID, courseID)
+            if flag3 == False:
+                raise Exception("Requirements are not satisfied.")
+        except Exception as e:
+            self.conn.rollback()
+            # print("Exception: ", e)
+            print("Ignored.")
         self.conn.commit()
 
     def remove_registration(self, studentID, courseID):
@@ -215,15 +224,20 @@ class DBController():
         if flag1 == 0:
             return 
         # Step 2: update course, delete registration
-        self.cursor.execute("""
-            DELETE Registration
-            WHERE StudentID = ? AND CourseID = ?
-        """, studentID, courseID)
-        self.cursor.execute("""
-            UPDATE Course
-            SET RemainCapacity = RemainCapacity + 1
-            WHERE CourseID = ?
-        """, courseID)
+        try:
+            self.cursor.execute("""
+                DELETE Registration
+                WHERE StudentID = ? AND CourseID = ?
+            """, studentID, courseID)
+            self.cursor.execute("""
+                UPDATE Course
+                SET RemainCapacity = RemainCapacity + 1
+                WHERE CourseID = ?
+            """, courseID)
+        except Exception as e:
+            self.conn.rollback()
+            # print("Exception: ", e)
+            print("Ignored.")
         self.conn.commit()
 
     def update_capacity(self, courseID, new_capacity):
